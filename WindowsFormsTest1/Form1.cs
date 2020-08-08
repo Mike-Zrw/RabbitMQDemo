@@ -18,45 +18,83 @@ namespace WindowsFormsTest1
         {
             InitializeComponent();
         }
-        private void thtest()
-        {
-            MessageBox.Show("Test");
-            Thread.Sleep(10000000);
-        }
+       
         private void btnsend_Click(object sender, EventArgs e)
         {
+            Consumer receive = new Consumer();
+            receive.ReceiveMsg(ShowReceiveMsg);
 
-            Send send = new Send();
+            Publisher send = new Publisher();
             send.SendMsg(this.txtSendMsg.Text);
-
         }
-        Receive receive;
-        private void btnreceive_Click(object sender, EventArgs e)
+
+        private void btnallquenes_Click(object sender, EventArgs e)
         {
-           
-                receive = new Receive();
-                receive.ReceiveMsg((msg) =>
-                {
-                    this.Invoke(new EventHandler((obj, args) =>
-                    {
-                        this.txtreceivemsg.Text += "\n" + msg;
-                    }));
-                });
-       
-            
+            MessageBox.Show(new RabbitMQHelper().GetAllQuenes());
         }
-        public void add() { }
 
-        private void btnclose_Click(object sender, EventArgs e)
+        private void btndirect_Click(object sender, EventArgs e)
         {
-            if (receive != null)
-                receive.Dispose();
+            LogDirectConsumer receive = new LogDirectConsumer();
+            receive.ReceiveMsg(ShowReceiveMsg);
+
+            LogDirectPub send = new LogDirectPub();
+            send.SendMsg(this.txtSendMsg.Text);
         }
 
+        private void btnfanout_Click(object sender, EventArgs e)
+        {
+            LogFanoutConsumer receive = new LogFanoutConsumer();
+            receive.ReceiveMsg(ShowReceiveMsg);
+
+            LogFanoutPub send = new LogFanoutPub();
+            send.SendMsg(this.txtSendMsg.Text);
+        }
+
+        private void btnheaders_Click(object sender, EventArgs e)
+        {
+            LogHeadersConsumer receive = new LogHeadersConsumer();
+            receive.ReceiveMsg(ShowReceiveMsg);
+
+            LogHeadersPub send = new LogHeadersPub();
+            send.SendMsg(this.txtSendMsg.Text);
+        }
+
+        private void btntopic_Click(object sender, EventArgs e)
+        {
+            LogTopicConsumer receive = new LogTopicConsumer();
+            receive.ReceiveMsg(ShowReceiveMsg);
+
+            LogTopicPub send = new LogTopicPub();
+            send.SendMsg(this.txtSendMsg.Text);
+        }
+
+        private async void btnrpc_Click(object sender, EventArgs e)
+        {
+            RpcConsumer receive = new RpcConsumer();
+            receive.ReceiveMsg(ShowReceiveMsg);
+
+            RpcPub send = new RpcPub();
+            string result = await send.SendMsg(this.txtSendMsg.Text);
+            ShowReplayMsg(result);
+        }
+
+        private void ShowReceiveMsg(string msg)
+        {
+            this.Invoke(new EventHandler((obj, args) =>
+            {
+                this.txtreceivemsg.Text += "\n" + msg;
+            }));
+        }
+
+        private void ShowReplayMsg(string msg)
+        {
+            txtreplay.Text += "\n" + msg;
+        }
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
-            //if (receive != null)
-            //    receive.Dispose();
+            System.Environment.Exit(0);
         }
+
     }
 }
